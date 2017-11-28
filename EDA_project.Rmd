@@ -1,0 +1,17 @@
+---
+title: "EDA Projecct"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+setwd("C:/Users/Holex/Desktop/EDA_Project")
+
+videogame_data <- fread("ign.csv", header = TRUE)
+
+
+```
+
+
+```
+
+
