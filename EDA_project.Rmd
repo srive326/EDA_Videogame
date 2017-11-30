@@ -4,9 +4,13 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+library("ggplot2")
 setwd("C:/Users/Holex/Desktop/EDA_Project")
 
 videogame_data <- fread("ign.csv", header = TRUE)
+
+ggplot(data=videogame_data, aes(videogame_data$release_year)) + 
+  geom_histogram()
 
 
 ```
