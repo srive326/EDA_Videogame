@@ -8,7 +8,7 @@ output: html_document
 ```{r setup}
 library("ggplot2")
 library('data.table')
-setwd("C:/Users/Holex/Desktop/EDA_Project")
+#setwd("C:/Users/Holex/Desktop/EDA_Project")
 
 videogame_ratings <- fread("ign.csv")
 videogame_sales <- fread("vgrating.csv")
@@ -28,7 +28,13 @@ str(title_year_sales)
 
 #merged <- merge(title_year_sales, title_rating, by= c("Name", "Platform", "Year_of_Release"))
 
+# determining best selling games.
+global_sales_per_platform <- videogame_sales[,sum(Global_Sales),by="Platform"]
+(global_sales_per_platform[order(-global_sales_per_platform$V1)])
 
+sales_since_08 <- subset(videogame_sales, Year_of_Release >= "2008")
+globalsales_since_08 <- sales_since_08[,sum(Global_Sales), by="Platform"]
+(globalsales_since_08[order(-globalsales_since_08$V1)])
 ```
 
 Plots below 
