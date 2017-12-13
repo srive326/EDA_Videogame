@@ -6,12 +6,15 @@ output: html_document
 
 
 ```{r setup}
-library("ggplot2")
-library('data.table')
-#setwd("C:/Users/Holex/Desktop/EDA_Project")
+library(ggplot2)
+library(data.table)
+
 
 videogame_ratings <- fread("ign.csv")
 videogame_sales <- fread("vgrating.csv")
+videogame_ranked_sales <- fread("vgsales.csv", na.strings = c("N/A",""))
+
+str(videogame_ranked_sales)
 str(videogame_sales)
 str(videogame_ratings)
 
@@ -58,5 +61,19 @@ rating_metacritic <- ggplot(data = mean_rating, aes(x=mean_rating$`videogame_sal
 rating_metacritic
 ```
 
+```{r num_publishers_per_year}
+# change to data.frame
+ranked_sales <- data.frame(videogame_ranked_sales)
+
+#remove NA's and anything with year of 2017 or greater
+ranked_sales <- ranked_sales[ranked_sales$Year < 2017, ]
+
+ranked_sales$Year <- factor(ranked_sales$Year)
+
+publishers_per_year <- aggregate(data=ranked_sales, Publisher ~ Year, function(x) unique(x))
+num_publishers_per_year <- aggregate(data=ranked_sales, Publisher ~ Year, function(x) length(unique(x)))
+
+ggplot(na.omit(num_publishers_per_year), aes(x = as.integer(as.character(Year)), y = Publisher)) + geom_point()
+```
 
 
