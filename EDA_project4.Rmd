@@ -1,0 +1,54 @@
+---
+title: "EDA Project II"
+author: "Joe Comer"
+date: "November 28, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "C:/DS/Data Munging/GroupProject2")
+
+```
+
+
+
+```{r}
+library(data.table)
+library(ggplot2)
+library(dplyr)
+data <- fread("ign.csv")
+IGNstaff <- fread("cleanIGNo.csv")
+colnames(IGNstaff) <- c("Since")
+ggplot(IGNstaff) + 
+    geom_histogram(aes(Since), bins=5)
+```
+
+```{r}
+IGNstock <- fread("IGNstock.csv")[-1,]
+Ninstock <- fread("Ninstock.csv")[-1,]
+Sonystock <- fread("Sonystock.csv")[-1,]
+MSstock <- fread("MSstock.csv")[-1,]
+
+IGNstock <- IGNstock %>% mutate(index = seq(1,nrow(IGNstock),1))
+Ninstock <- Ninstock %>% mutate(index = seq(1,nrow(IGNstock),1))
+Sonystock <- Sonystock %>% mutate(index = seq(1,nrow(IGNstock),1))
+MSstock <- MSstock %>% mutate(index = seq(1,nrow(IGNstock),1))
+
+
+
+
+x_breaks <- seq(2,nrow(IGNstock), 12)
+x_labels <- as.character(IGNstock$date)[x_breaks]
+
+ggplot(data=IGNstock) +
+    geom_line(aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "1")) +
+    geom_line(data = Ninstock, aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "3")) +
+    geom_line(data = Sonystock, aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "4")) +
+    geom_line(data = MSstock, aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "5"))+
+    scale_color_manual(labels = c("IGN", "Nintendo", "Sony", "M$"), values = c("2", "3", "4", "5")) +
+    scale_y_continuous(name = "Closing Price", breaks=waiver()) + ggtitle("Game Company Stock Data Since 2007") +
+    scale_x_date(name="Year")
+```
+
+
+
