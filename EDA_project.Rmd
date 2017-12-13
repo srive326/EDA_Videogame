@@ -1,21 +1,46 @@
 ---
-title: "EDA Projecct"
+title: "EDA Project"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 library("ggplot2")
+library('data.table')
 setwd("C:/Users/Holex/Desktop/EDA_Project")
 
-videogame_data <- fread("ign.csv", header = TRUE)
+videogame_ratings <- fread("ign.csv")
+videogame_sales <- fread("vgrating.csv")
+str(videogame_sales)
+str(videogame_ratings)
 
-ggplot(data=videogame_data, aes(videogame_data$release_year)) + 
-  geom_histogram()
+title_year_sales <- videogame_sales[,c(1,2,3,6,7,8,9,10)]
 
+
+year_sales$`videogame_sales$Year_of_Release` <- as.factor(year_sales$`videogame_sales$Year_of_Release`)
+
+year_sales$`videogame_sales$Global_Sales` <- as.factor(year_sales$`videogame_sales$Global_Sales`)
+
+a <- ggplot(mpg, aes(hwy))
+
+a + geom_bar()
+
+sales_year <- ggplot(data = year_sales, aes(x=year_sales$`videogame_sales$Year_of_Release`, y= year_sales$`videogame_sales$Global_Sales`)) + geom_bar()
+sales_year
+
+#by console
+ploty <- ggplot(data = videogame_sales, aes(x=Year_of_Release, y = Global_Sales)) + geom_bar(stat="identity", color= "pink")
+nex <-ploty + geom_bar(stat = "identity",aes(fill = videogame_sales$Platform))
+nex
+
+
+
+#by genre
+
+genre <- ploty + geom_bar(stat = "identity",aes(fill = videogame_sales$Genre)) + coord_flip()
+genre
 
 ```
 
 
-```
 
 

@@ -1,0 +1,66 @@
+---
+title: "EDA Project"
+output: html_document
+---
+
+
+
+```{r setup}
+library("ggplot2")
+library('data.table')
+setwd("C:/Users/Holex/Desktop/EDA_Project")
+
+videogame_ratings <- fread("ign.csv")
+videogame_sales <- fread("vgrating.csv")
+str(videogame_sales)
+str(videogame_ratings)
+
+title_year_sales <- videogame_sales[,c(1,2,3,6,7,8,9,10)]
+title_rating <- videogame_ratings[,c(3,5,6,9)]
+colnames(videogame_ratings)[3] <- "Name"
+colnames(videogame_ratings)[5] <- "Platform"
+colnames(videogame_ratings)[9] <- "Year_of_Release"
+
+title_year_sales$Year_of_Release <- as.integer(title_year_sales$Year_of_Release)
+videogame_sales$User_Score <- as.integer(videogame_sales$User_Score)
+
+str(title_year_sales)
+
+merged <- merge(title_year_sales, title_rating, by= c("Name", "Platform", "Year_of_Release"))
+
+
+year_sales$`videogame_sales$Year_of_Release` <- as.factor(year_sales$`videogame_sales$Year_of_Release`)
+
+year_sales$`videogame_sales$Global_Sales` <- as.factor(year_sales$`videogame_sales$Global_Sales`)
+
+a <- ggplot(mpg, aes(hwy))
+
+a + geom_bar()
+
+sales_year <- ggplot(data = year_sales, aes(x=year_sales$`videogame_sales$Year_of_Release`, y= year_sales$`videogame_sales$Global_Sales`)) + geom_bar()
+sales_year
+
+#by console
+ploty <- ggplot(data = videogame_sales, aes(x=Year_of_Release, y = Global_Sales)) + geom_bar(stat="identity")
+nex <-ploty + geom_bar(stat = "identity",aes(fill = videogame_sales$Platform))
+nex
+
+
+
+#by genre
+genre <- ploty + geom_bar(stat = "identity",aes(fill = videogame_sales$Genre)) + coord_flip()
+genre
+
+#by rating
+mean_rating <- aggregate(videogame_sales$User_Score ~ videogame_sales$Year_of_Release,videogame_sales,mean)
+#rating <- ploty + geom_line(mean_rating,aes(x= mean_rating$`videogame_sales$Year_of_Release`, y=mean_rating$`videogame_sales$User_Score`))
+rating_metacritic <- ggplot(data = mean_rating, aes(x=mean_rating$`videogame_sales$Year_of_Release`, y= mean_rating$`videogame_sales$User_Score`)) + geom_bar(stat="identity")
+rating_metacritic
+
+
+
+```
+
+
+
+
