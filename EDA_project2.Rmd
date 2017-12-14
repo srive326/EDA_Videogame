@@ -6,12 +6,15 @@ output: html_document
 
 
 ```{r setup}
-library("ggplot2")
-library('data.table')
-#setwd("C:/Users/Holex/Desktop/EDA_Project")
+library(ggplot2)
+library(data.table)
+
 
 videogame_ratings <- fread("ign.csv")
-videogame_sales <- fread("vgrating.csv")
+videogame_sales <- fread("vgrating.csv",na.strings = c("N/A",""))
+videogame_ranked_sales <- fread("vgsales.csv", na.strings = c("N/A",""))
+
+str(videogame_ranked_sales)
 str(videogame_sales)
 str(videogame_ratings)
 
@@ -58,5 +61,25 @@ rating_metacritic <- ggplot(data = mean_rating, aes(x=mean_rating$`videogame_sal
 rating_metacritic
 ```
 
+```{r num_publishers_per_year}
+# change to data.frame
+sales <- data.frame(videogame_sales)
+str(sales)
 
+#remove anything with year of 2017 or greater
+sales <- sales[sales$Year_of_Release < 2017, ]
+
+sales$Year_of_Release <- factor(sales$Year_of_Release)
+
+publishers_per_year <- aggregate(data=sales, Publisher ~ Year_of_Release, function(x) unique(x))
+num_publishers_per_year <- aggregate(data=sales, Publisher ~ Year_of_Release, function(x) length(unique(x)))
+
+ggplot(na.omit(num_publishers_per_year), aes(x = as.integer(as.character(Year_of_Release)), y = Publisher)) + geom_point(aes(color = Publisher)) + xlab("Year") + ylab("Number of Active Publishers") 
+```
+```{r num_developers_per_year}
+developers_per_year <- aggregate(data=sales, Developer ~ Year_of_Release, function(x) unique(x))
+num_developers_per_year <- aggregate(data=sales, Developer ~ Year_of_Release, function(x) length(unique(x)))
+
+ggplot(na.omit(num_developers_per_year), aes(x = as.integer(as.character(Year_of_Release)), y = Developer)) + geom_point(aes(color = Developer)) + xlab("Year") + ylab("Number of Active Developers") 
+```
 
