@@ -77,11 +77,30 @@ lm(mwc~ count, data=articles.counts.mwc)
 ```
 
 ```{r warning= FALSE}
-ggplot(data = articles.counts.mwc, aes(x=count, y = mwc))+geom_point(aes(color=author), show.legend = FALSE) +geom_smooth(method = "lm", aes(color="red"), show.legend = FALSE) + ggtitle("Mean Wordcount by Total Articles")
+ggplot(data = articles.counts.mwc, aes(x=count, y = mwc))+geom_point(aes(color=author), show.legend = FALSE) +geom_smooth(method = "lm", aes(color="2"), show.legend = FALSE) + ggtitle("Mean Wordcount by Total Articles")
 
 ```
 
 ```{r}
+(article.avgscore <- aggregate(articles$score, by=list(Category=articles$author), FUN=mean))
+colnames(article.avgscore) <- c("author", "avgscore")
+author.score.total <- cbind(article.counts, article.avgscore)
+ggplot(data = author.score.total, aes(x=count, y = avgscore))+geom_point(aes(color=author), show.legend = FALSE) +geom_smooth(method = "lm", aes(color="2"), show.legend = FALSE) + ggtitle("Average Score by Total Articles Written")
 
+```
+
+```{r}
+ggplot(author.score.total) + geom_histogram(aes(x = avgscore), binwidth = .5)+ ggtitle("Histogram of Average Scores by Author") + scale_y_continuous(name = "Authors", breaks = waiver(), labels = c("0","10","20","30","40","50"))
+
+```
+
+```{r}
+scores.date <- aggregate(articles$score, by=list(Category=articles$release_date), FUN=mean)
+colnames(scores.date) <- c("date", "avgscore")
+wc.date <- aggregate(articles$word_count, by=list(Category=articles$release_date), FUN=mean)
+colnames(wc.date) <- c("date","word_count")
+score.wc.date <- cbind(scores.date, word_count =wc.date$word_count)
+
+ggplot(data = score.wc.date, aes(x=as.Date(date, format='%B %d, %Y'), y = avgscore))+geom_point(aes(color=word_count), show.legend = TRUE)  + ggtitle("Avg Score by Date") + scale_x_date(name = "Date of Publication", breaks= waiver(), labels= c("0","2012", "2014", "2016", "2018", "2020"))
 ```
 
