@@ -99,7 +99,8 @@ grid.arrange(gold, gnew, gaby, gwc, ncol=1, nrow =4)
 Unfortunately, the full crawler kept failing at some point. We got ~3500 reviews/4975 available reviews. We can still discuss the average word count by year, but we will have to give up on the number of reviewers per year. Below is the the entire set of available reviews (only lacking author and wordcount).
 
 ```{r}
-full_new_IGN <- fread("basicIGNdata.csv")
+full_new_IGN <- fread("basicIGNData.csv")
+full_new_IGN <- full_new_IGN[, -c("V9", "V10", "V11")]
 
 # to factors
 full_new_IGN$platform <- as.factor(full_new_IGN$platform)
@@ -108,16 +109,17 @@ full_new_IGN$editors_choice <- as.factor(full_new_IGN$editors_choice)
 full_new_IGN$score_phrase <- as.factor(full_new_IGN$score_phrase)
 
 # Fix the format of year
-full_new_IGN$release_date <- as.Date(full_new_IGN$release_date, format = "%B %d, %Y")
+full_new_IGN$release_date <- as.Date(full_new_IGN$release_date, format = "%d-%b-%y")
 full_new_IGN <- separate(full_new_IGN, release_date, into = c("year", "month", "day"), sep="-")
 full_new_IGN[, c("year", "day", "month")] <- lapply(full_new_IGN[, c("year", "day", "month")], as.numeric)
 
-newcount <- full_new_snippet %>% group_by(year) %>% summarise(count = n())
+newcount <- full_new_IGN %>% group_by(year) %>% summarise(count = n())
 
 # plot partial data with full basic to see how many we missed/year in the failed full craw3
 ggplot() +
   geom_area(data=y1, aes(x=y1$release_year, y=y1$count), fill="dodgerblue3", alpha=.2) +
-  geom_area(data=na.omit(y2), aes(x=y2$year, y=y2$count), fill="deeppink1", alpha=.2) +
-  geom_area(data=na.omit(newcount), aes(x=newcount$year, y=newcount$count), fill="deeppink1", alpha=.2)
+  #geom_area(data=na.omit(y2), aes(x=y2$year, y=y2$count), fill="deeppink1", alpha=.2) +
+  geom_area(data=na.omit(newcount), aes(x=newcount$year, y=newcount$count), fill="blue", alpha=.2) +
+  labs(title="Reviews per Year", x="Year", y="Number of IGN Reviews") 
 ```
 
