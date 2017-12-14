@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir = "C:/DS/Data Munging/GroupProject2")
+knitr::opts_knit$set(root.dir = "C:/DS/Data Munging/GroupProject2/EDA_Videogame")
 
 ```
 
@@ -51,4 +51,17 @@ ggplot(data=IGNstock) +
 ```
 
 
+```{r}
+articles <- fread("snippetIGNdata.csv") %>% mutate(count = 1)
+article.counts <- aggregate(articles$count, by=list(Category=articles$author), FUN=sum)
+colnames(article.counts) <- c("author","count")
+article.counts[order(-article.counts$count),]
+```
+```{r}
+mean(article.counts$count)
+```
+
+```{r}
+ggplot(article.counts) + geom_histogram(aes(x = count), binwidth = 20)
+```
 
