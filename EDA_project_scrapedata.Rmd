@@ -1,0 +1,123 @@
+---
+title: "EDA_project_scrapeddata"
+author: "kevinHunt"
+date: "December 13, 2017"
+output: html_document
+---
+
+```{r setup}
+library("ggplot2")
+library('data.table')
+library('beeswarm')
+library('tidyr')
+library('dplyr')
+library('gridExtra')
+# TO DO thoughts - overlay console releases on sales charts
+# beeswarm of sales vs year - or violin plot
+
+# THIS IS NOT THE FULL DATASET
+new_snippet <- fread("snippetIGNdata.csv")
+orig_ratings <- fread("ign.csv")
+
+# to factors
+new_snippet$platform <- as.factor(new_snippet$platform)
+new_snippet$genre <- as.factor(new_snippet$genre)
+new_snippet$editors_choice <- as.factor(new_snippet$editors_choice)
+new_snippet$score_phrase <- as.factor(new_snippet$score_phrase)
+
+# Fix the format of year
+new_snippet$release_date <- as.Date(new_snippet$release_date, format = "%B %d, %Y")
+new_snippet <- separate(new_snippet, release_date, into = c("year", "month", "day"), sep="-")
+new_snippet[, c("year", "day", "month")] <- lapply(new_snippet[, c("year", "day", "month")], as.numeric)
+
+```
+
+Reviews per year
+```{r}
+# remove easter egg in original data
+orig_ratings <- orig_ratings[orig_ratings$release_year != 1970, ]
+#reviews by year
+# original data
+(gold <- qplot(orig_ratings$release_year,
+      geom="histogram",
+      binwidth = 0.5,  
+      main = "Histogram for Year", 
+      xlab = "Year",  
+      fill=I("blue"), 
+      col=I("red"), 
+      alpha=I(.2)))
+
+# newly scraped data
+(gnew <- qplot(new_snippet$year,
+      geom="histogram",
+      binwidth = 0.5,  
+      main = "Histogram for Year", 
+      xlab = "Year",  
+      fill=I("blue"), 
+      col=I("red"), 
+      alpha=I(.2)))
+
+#beeswarm(new_snippet$year)
+```
+
+```{r}
+# How many review authors have there been per year at IGN
+authors_by_year <- new_snippet %>% group_by(year) %>% summarise(count = n_distinct(author))
+(gaby <- ggplot(data = authors_by_year, aes(x=year, y = count)) + geom_bar(stat="identity"))
+```
+
+Number of words in the article by year
+```{r}
+(gwc <- ggplot(na.omit(new_snippet), aes(x=as.factor(year), y=word_count, fill=as.factor(year))) + 
+  geom_violin() + geom_boxplot(width=0.1, fill="white") + labs(title="Review Word Count by Year", x="Year", y="Word Count")  + guides(fill= guide_legend(reverse = TRUE)) + theme(legend.position = "none"))
+```
+
+```{r}
+# combine plots
+# x = year
+# y1 = count/year from orig  
+# y2 = count/year from new
+# y3 = count of authors/year from new authors_by_year
+# y4 = average word count/year from new
+y1 <- orig_ratings %>% group_by(release_year) %>% summarise(count = n())
+y2 <- new_snippet %>% group_by(year) %>% summarise(count = n())
+y3 <- authors_by_year
+y4 <- na.omit(new_snippet) %>% group_by(year) %>% summarise(mean(word_count))
+colnames(y4)[2] <- "avg_wc"
+
+ggplot() +
+  geom_area(data=y1, aes(x=y1$release_year, y=y1$count), fill="dodgerblue3", alpha=.2) +
+  geom_area(data=na.omit(y2), aes(x=y2$year, y=y2$count), fill="deeppink1", alpha=.2) +
+  geom_area(data=na.omit(y3), aes(x=y3$year, y=y3$count), fill="springgreen3", alpha=.2) +
+  geom_area(data=na.omit(y4), aes(x=y4$year, y=y4$avg_wc), fill="darkorange2", alpha=.2)
+```
+
+```{r}
+grid.arrange(gold, gnew, gaby, gwc, ncol=1, nrow =4)
+```
+
+Unfortunately, the full crawler kept failing at some point. We got ~3500 reviews/4975 available reviews. We can still discuss the average word count by year, but we will have to give up on the number of reviewers per year. Below is the the entire set of available reviews (only lacking author and wordcount).
+
+```{r}
+full_new_IGN <- fread("basicIGNdata.csv")
+
+# to factors
+full_new_IGN$platform <- as.factor(full_new_IGN$platform)
+full_new_IGN$genre <- as.factor(full_new_IGN$genre)
+full_new_IGN$editors_choice <- as.factor(full_new_IGN$editors_choice)
+full_new_IGN$score_phrase <- as.factor(full_new_IGN$score_phrase)
+
+# Fix the format of year
+full_new_IGN$release_date <- as.Date(full_new_IGN$release_date, format = "%B %d, %Y")
+full_new_IGN <- separate(full_new_IGN, release_date, into = c("year", "month", "day"), sep="-")
+full_new_IGN[, c("year", "day", "month")] <- lapply(full_new_IGN[, c("year", "day", "month")], as.numeric)
+
+newcount <- full_new_snippet %>% group_by(year) %>% summarise(count = n())
+
+# plot partial data with full basic to see how many we missed/year in the failed full craw3
+ggplot() +
+  geom_area(data=y1, aes(x=y1$release_year, y=y1$count), fill="dodgerblue3", alpha=.2) +
+  geom_area(data=na.omit(y2), aes(x=y2$year, y=y2$count), fill="deeppink1", alpha=.2) +
+  geom_area(data=na.omit(newcount), aes(x=newcount$year, y=newcount$count), fill="deeppink1", alpha=.2)
+```
+
