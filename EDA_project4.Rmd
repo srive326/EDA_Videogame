@@ -41,13 +41,14 @@ x_breaks <- seq(2,nrow(IGNstock), 12)
 x_labels <- as.character(IGNstock$date)[x_breaks]
 
 ggplot(data=IGNstock) +
-    geom_line(aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "1")) +
+    geom_vline(xintercept=as.Date("2008/09/15"), color = "2", linetype = "dashed", size = 2) +
+    geom_line(aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "6")) +
     geom_line(data = Ninstock, aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "3")) +
     geom_line(data = Sonystock, aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "4")) +
     geom_line(data = MSstock, aes(x=as.Date(date), y=as.numeric(close), group = 1, color = "5"))+
-    scale_color_manual(labels = c("IGN", "Nintendo", "Sony", "M$"), values = c("2", "3", "4", "5")) +
-    scale_y_continuous(name = "Closing Price", breaks=waiver()) + ggtitle("Game Company Stock Data Since 2007") +
-    scale_x_date(name="Year")
+    scale_color_manual(labels = c("IGN", "Nintendo", "Sony", "M$"), values = c("6", "3", "4", "5")) +
+    scale_y_continuous(name = "Closing Price", breaks=waiver()) + ggtitle("Game Company Stock Data Since Dec 2007") +
+    scale_x_date(name="Year") + geom_text(label = "Lehman Bros Crash", x = as.Date("2010/05/15"), y = 80)
 ```
 
 
@@ -62,7 +63,7 @@ mean(article.counts$count)
 ```
 
 ```{r}
-ggplot(article.counts) + geom_histogram(aes(x = count), binwidth = 20)+ ggtitle("Histogram of Articles Written by Author")
+ggplot(article.counts) + geom_histogram(aes(x = count), binwidth = 20)+ ggtitle("Histogram of Articles Written by Author") + scale_y_continuous(name = "Authors", breaks = waiver(), labels = c("0","30","60","90","120"))
 ```
 
 ```{r}
@@ -77,6 +78,10 @@ lm(mwc~ count, data=articles.counts.mwc)
 
 ```{r warning= FALSE}
 ggplot(data = articles.counts.mwc, aes(x=count, y = mwc))+geom_point(aes(color=author), show.legend = FALSE) +geom_smooth(method = "lm", aes(color="red"), show.legend = FALSE) + ggtitle("Mean Wordcount by Total Articles")
+
+```
+
+```{r}
 
 ```
 
